@@ -38,14 +38,18 @@ apt-get install -y git nano build-essential cmake automake > /dev/null 2<&1
 apt-get install -y libsamplerate0-dev > /dev/null 2<&1
 chmod ugo+w /opt/ > /dev/null 2<&1
 cd /opt/ > /dev/null 2<&1
+echo "Git clone MMDVMHost"
 git clone ${GITURL}MMDVMHost.git > /dev/null 2<&1
+echo "Git clone MMDVMCal"
 git clone ${GITURL}MMDVMCal.git > /dev/null 2<&1
+echo "Git clone DMRGateway"
 git clone ${GITURL}DMRGateway.git > /dev/null 2<&1
 apt-get install lighttpd > /dev/null 2<&1
 groupadd www-data > /dev/null 2<&1
 usermod -G www-data -a mmdvm > /dev/null 2<&1
 usermod -G www-data -a root > /dev/null 2<&1
 apt-get install php7.4-common php7.4-cgi php > /dev/null 2<&1
+echo "Git clone MMDVMHost-Dashboard"
 git clone https://github.com/dg9vh/MMDVMHost-Dashboard.git > /dev/null 2<&1
 cp -R /opt/MMDVMHost-Dashboard/* /var/www/html/ > /dev/null 2<&1
 chown -R www-data:www-data /var/www/html > /dev/null 2<&1
@@ -56,14 +60,18 @@ lighty-enable-mod fastcgi > /dev/null 2<&1
 lighty-enable-mod fastcgi-php > /dev/null 2<&1
 service lighttpd force-reload > /dev/null 2<&1
 cd /opt/MMDVMHost > /dev/null 2<&1
+echo "Make MMDVMHost"
 git pull > /dev/null 2<&1
 make > /dev/null 2<&1
 cd /opt/MMDVMCal > /dev/null 2<&1
+echo "Make MMDVMCal"
 git pull > /dev/null 2<&1
 make > /dev/null 2<&1
 cd /opt/DMRGateway > /dev/null 2<&1
+echo "Make DMRGateway"
 git pull > /dev/null 2<&1
 make > /dev/null 2<&1
+echo "Downloading Service Files..."
 cp -R /opt/DMRGateway/DMRGateway ${BIN} > /dev/null 2<&1
 #cp -R /opt/DMRGateway/DMRGateway.ini ${BIN}dmrgateway > /dev/null 2<&1
 cp -R /opt/MMDVMCal/MMDVMCal ${BIN} > /dev/null 2<&1
