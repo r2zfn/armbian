@@ -6,7 +6,7 @@ if [ "$(expr length `hostname -I | cut -d' ' -f1`x)" == "1" ]; then
 fi
 
 # Get the Pi-Star Version
-pistarCurVersion=$(awk -F "= " '/Version/ {print $2}' /etc/armbian-release)
+distrCurVersion=$(awk -F "= " '/Version/ {print $2}' /etc/armbian-release)
 
 DMRIDFILE=/usr/local/etc/DMRIds.dat
 #QRAIDFILE=/usr/local/etc/dmrids.dat
@@ -48,16 +48,16 @@ do
 done
 
 echo "Downloading DMRIds.dat Files..."
-curl -sSL http://www.pistar.uk/downloads/DMRIds.dat.gz --user-agent "Pi-Star_${pistarCurVersion}" | gunzip -c > ${DMRIDFILE}
+curl -sSL http://www.pistar.uk/downloads/DMRIds.dat.gz --user-agent "Pi-Star_${distrCurVersion}" | gunzip -c > ${DMRIDFILE}
 
 # Add QRA DMRID database
-echo "Downloading DMRIdsQRA.dat Files..."
-curl --fail -o /tmp/DMRIdsQRA.dat -s "https://raw.githubusercontent.com/krot4u/Public_scripts/master/DMRIds.dat"
-cat /tmp/DMRIdsQRA.dat >> ${DMRIDFILE}
+#echo "Downloading DMRIdsQRA.dat Files..."
+#curl --fail -o /tmp/DMRIdsQRA.dat -s "https://raw.githubusercontent.com/krot4u/Public_scripts/master/DMRIds.dat"
+#cat /tmp/DMRIdsQRA.dat >> ${DMRIDFILE}
 
 
 echo "Downloading XLXHosts.txt Files..."
-curl --fail -o ${XLXHOSTS} -s http://www.pistar.uk/downloads/XLXHosts.txt --user-agent "Pi-Star_${pistarCurVersion}"
+curl --fail -o ${XLXHOSTS} -s http://www.pistar.uk/downloads/XLXHosts.txt --user-agent "Pi-Star_${distrCurVersion}"
 
 
 if [ ! -f /root/XLXHosts.txt ]; then
@@ -70,7 +70,7 @@ cat /root/XLXHosts.txt >> ${XLXHOSTS}
 fi
 
 echo "Downloading TGList_BM.txt Files..."
-curl --fail -o ${TGLISTBM} -s http://www.pistar.uk/downloads/TGList_BM.txt --user-agent "Pi-Star_${pistarCurVersion}"
+curl --fail -o ${TGLISTBM} -s http://www.pistar.uk/downloads/TGList_BM.txt --user-agent "Pi-Star_${distrCurVersion}"
 
 
 
@@ -81,25 +81,6 @@ curl --fail -o ${TGLISTBM} -s http://www.pistar.uk/downloads/TGList_BM.txt --use
 		curl --fail -o /usr/local/etc/DMR_Audio/en_US.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/en_US.ambe
 		curl --fail -o /usr/local/etc/DMR_Audio/en_US.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/en_US.indx
 	fi
-
-	# Download the correct P25 Audio Files
-	if [[ ! -d /usr/local/etc/P25_Audio ]]; then
-		echo "Downloading P25 Voice Files..."
-		mkdir /usr/local/etc/P25_Audio
-		curl --fail -o /usr/local/etc/P25_Audio/en_US.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/en_US.imbe
-		curl --fail -o /usr/local/etc/P25_Audio/en_US.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/en_US.indx
-		echo "Done"
-	fi
-
-	# Download the correct M17 Audio Files
-	if [[ ! -d /usr/local/etc/M17_Audio ]]; then
-		echo "Downloading M17 Voice Files..."
-		mkdir /usr/local/etc/M17_Audio
-		curl --fail -o /usr/local/etc/M17_Audio/en_US.indx -s https://raw.githubusercontent.com/g4klx/M17Gateway/main/Audio/en_US.indx
-		curl --fail -o /usr/local/etc/M17_Audio/en_US.m17 -s hhttps://raw.githubusercontent.com/g4klx/M17Gateway/main/Audio/en_US.m17
-		echo "Done"
-	fi
-
 
 
 # Fix DMRGateway issues with brackets
