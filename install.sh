@@ -6,7 +6,7 @@ if [ "$(expr length `hostname -I | cut -d' ' -f1`x)" == "1" ]; then
 fi
 
 # Get the Distr Version
-distrCurVersion=$(awk -F "= " '/Version/ {print $2}' /etc/armbian-release)
+distrCurVersion=$(awk -F "= " '/Version/ {print $2}' /etc/armbian-release) > /dev/null 2<&1
 
 DMRIDFILE=/usr/local/etc/DMRIds.dat
 #QRAIDFILE=/usr/local/etc/dmrids.dat
@@ -21,6 +21,9 @@ GITURL=https://github.com/g4klx/
 RGITURL=https://raw.githubusercontent.com/g4klx/
 KROTURL=https://raw.githubusercontent.com/krot4u/Public_scripts/master/
 PIURL=http://www.pistar.uk/downloads/
+MURL=https://raw.githubusercontent.com/r2zfn/armbian/main/
+
+
 
 
 # Check we are root
@@ -62,24 +65,24 @@ cd /opt/DMRGateway > /dev/null 2<&1
 git pull > /dev/null 2<&1
 make > /dev/null 2<&1
 cp -R /opt/DMRGateway/DMRGateway ${BIN} > /dev/null 2<&1
-cp -R /opt/DMRGateway/DMRGateway.ini ${BIN}dmrgateway > /dev/null 2<&1
+#cp -R /opt/DMRGateway/DMRGateway.ini ${BIN}dmrgateway > /dev/null 2<&1
 cp -R /opt/MMDVMCal/MMDVMCal ${BIN} > /dev/null 2<&1
 cp -R /opt/MMDVMHost/MMDVMHost ${BIN} > /dev/null 2<&1
-cp -R /opt/MMDVMHost/MMDVM.ini ${BIN}mmdvmhost > /dev/null 2<&1
+#cp -R /opt/MMDVMHost/MMDVM.ini ${BIN}mmdvmhost > /dev/null 2<&1
 cp -R /opt/MMDVMHost/RemoteCommand ${BIN} > /dev/null 2<&1
 chmod -R 775 /usr/local/bin > /dev/null 2<&1
 
 echo "Downloading Start Service Files..."
-curl --fail -o ${SBIN}dmrgateway.service -s ${RGITURL}dmrgateway.service > /dev/null 2<&1
-curl --fail -o ${SBIN}mmdvmhost.service -s ${RGITURL}mmdvmhost.service > /dev/null 2<&1
-
+curl --fail -o ${SBIN}dmrgateway.service -s ${MURL}sbin/dmrgateway.service > /dev/null 2<&1
+curl --fail -o ${SBIN}mmdvmhost.service -s ${MURL}sbin/mmdvmhost.service > /dev/null 2<&1
+curl --fail -o ${SBIN}update.sh -s ${MURL}update.sh > /dev/null 2<&1
 chmod -R 775 /usr/local/sbin > /dev/null 2<&1
 
 echo "Downloading Service Files..."
-curl --fail -o ${LIB}dmrgateway.service -s ${RGITURL}dmrgateway.service > /dev/null 2<&1
-curl --fail -o ${LIB}dmrgateway.timer -s ${RGITURL}dmrgateway.timer > /dev/null 2<&1
-curl --fail -o ${LIB}mmdvmhost.service -s ${RGITURL}mmdvmhost.service > /dev/null 2<&1
-curl --fail -o ${LIB}mmdvmhost.timer -s ${RGITURL}mmdvmhost.timer > /dev/null 2<&1
+curl --fail -o ${LIB}dmrgateway.service -s ${MURL}system/dmrgateway.service > /dev/null 2<&1
+curl --fail -o ${LIB}dmrgateway.timer -s ${MURL}system/dmrgateway.timer > /dev/null 2<&1
+curl --fail -o ${LIB}mmdvmhost.service -s ${MURL}system/mmdvmhost.service > /dev/null 2<&1
+curl --fail -o ${LIB}mmdvmhost.timer -s ${MURL}system/mmdvmhost.timer > /dev/null 2<&1
 
 echo "Enable Service and Reload"
 systemctl enable dmrgateway.service > /dev/null 2<&1
@@ -89,7 +92,11 @@ systemctl enable mmdvmhost.timer > /dev/null 2<&1
 systemctl daemon-reload > /dev/null 2<&1
 
 
-
+echo "Downloading Etc Files..."
+curl --fail -o ${DMRID}dmrgateway.service -s ${MURL}etc/DMRIds.dat > /dev/null 2<&1
+curl --fail -o ${LIB}dmrgateway.timer -s ${MURL}dmrgateway.timer > /dev/null 2<&1
+curl --fail -o ${LIB}mmdvmhost.service -s ${MURL}mmdvmhost.service > /dev/null 2<&1
+curl --fail -o ${LIB}mmdvmhost.timer -s ${MURL}mmdvmhost.timer > /dev/null 2<&1
 
 
 
