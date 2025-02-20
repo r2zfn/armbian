@@ -8,7 +8,7 @@
 # Service Config
 DAEMON=DMRGateway
 DAEMON_PATH=/usr/local/bin/
-CONFIG=/etc/dmrgateway
+CONFIG=/usr/local/etc/dmrgateway
 DAEMON_OPTS=$CONFIG
 PGREP=/usr/bin/pgrep
 KILL=/bin/kill
