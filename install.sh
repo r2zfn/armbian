@@ -32,7 +32,7 @@ if [ "$(id -u)" != "0" ];then
     exit 1
 fi
 
-apt update && apt upgrade
+apt -y update && apt -y upgrade
 hostname mmdvm
 apt-get install -y git nano build-essential cmake automake > /dev/null 2<&1
 apt-get install -y libsamplerate0-dev > /dev/null 2<&1
