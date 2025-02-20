@@ -8,21 +8,14 @@
 # Service Config
 DAEMON=MMDVMHost
 DAEMON_PATH=/usr/local/bin/
-CONFIG=/etc/mmdvmhost
+CONFIG=/usr/local/etc/mmdvmhost
 DAEMON_OPTS=$CONFIG
 PGREP=/usr/bin/pgrep
 KILL=/bin/kill
 SLEEP=/bin/sleep
 USER=root
 GROUP=mmdvm
-LOGDIR=/var/log/pi-star
-
-source /usr/local/sbin/.wpsd-shell-funcs
-
-# Pre-flight checks...
-test -x ${DAEMON_PATH}${DAEMON} || exit 0
-test -r $CONFIG || exit 0
-test -r /etc/dstar-radio.mmdvmhost || exit 0
+LOGDIR=/var/log/mmdvm
 
 # Verify the logging directory exists, if not create it and setup the ownership / permissions
 if [ ! -d $LOGDIR ]; then
