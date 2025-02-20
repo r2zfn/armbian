@@ -5,16 +5,23 @@ if [ "$(expr length `hostname -I | cut -d' ' -f1`x)" == "1" ]; then
 	exit 0
 fi
 
-# Get the Pi-Star Version
-pistarCurVersion=$(awk -F "= " '/Version/ {print $2}' /etc/armbian-release)
+# Get the Distr Version
+distrCurVersion=$(awk -F "= " '/Version/ {print $2}' /etc/armbian-release)
 
 DMRIDFILE=/usr/local/etc/DMRIds.dat
 #QRAIDFILE=/usr/local/etc/dmrids.dat
 XLXHOSTS=/usr/local/etc/XLXHosts.txt
 TGLISTBM=/usr/local/etc/TGList_BM.txt
+LIB=/lib/systemd/system/
+BIN=/usr/local/bin/
+SBIN=/usr/local/sbin/
+ETC=/etc/
+SETC=/usr/local/etc/
+GITURL=https://github.com/g4klx/
+RGITURL=https://raw.githubusercontent.com/g4klx/
+KROTURL=https://raw.githubusercontent.com/krot4u/Public_scripts/master/
+PIURL=http://www.pistar.uk/downloads/
 
-# How many backups
-FILEBACKUP=1
 
 # Check we are root
 if [ "$(id -u)" != "0" ];then
@@ -22,90 +29,104 @@ if [ "$(id -u)" != "0" ];then
 	exit 1
 fi
 
-# Create backup of old files
-if [ ${FILEBACKUP} -ne 0 ]; then
-	cp ${DMRIDFILE} ${DMRIDFILE}.$(date +%Y%m%d)
-	cp ${XLXHOSTS} ${XLXHOSTS}.$(date +%Y%m%d)
-	cp ${TGLISTBM} ${TGLISTBM}.$(date +%Y%m%d)
-fi
+apt update && apt upgrade
+hostname mmdvm
+apt-get install -y git nano build-essential cmake automake > /dev/null 2<&1
+apt-get install -y libsamplerate0-dev > /dev/null 2<&1
+chmod ugo+w /opt/ > /dev/null 2<&1
+cd /opt/ > /dev/null 2<&1
+git clone ${GITURL}MMDVMHost.git > /dev/null 2<&1
+git clone ${GITURL}MMDVMCal.git > /dev/null 2<&1
+git clone ${GITURL}DMRGateway.git > /dev/null 2<&1
+apt-get install lighttpd > /dev/null 2<&1
+groupadd www-data > /dev/null 2<&1
+usermod -G www-data -a mmdvm > /dev/null 2<&1
+usermod -G www-data -a root > /dev/null 2<&1
+apt-get install php7.4-common php7.4-cgi php > /dev/null 2<&1
+git clone https://github.com/dg9vh/MMDVMHost-Dashboard.git > /dev/null 2<&1
+cp -R /opt/MMDVMHost-Dashboard/* /var/www/html/ > /dev/null 2<&1
+chown -R www-data:www-data /var/www/html > /dev/null 2<&1
+chmod -R 775 /var/www/html > /dev/null 2<&1
+cd /var/www/html > /dev/null 2<&1
+rm index.lighttpd.html > /dev/null 2<&1
+lighty-enable-mod fastcgi > /dev/null 2<&1
+lighty-enable-mod fastcgi-php > /dev/null 2<&1
+service lighttpd force-reload > /dev/null 2<&1
+cd /opt/MMDVMHost > /dev/null 2<&1
+git pull > /dev/null 2<&1
+make > /dev/null 2<&1
+cd /opt/MMDVMCal > /dev/null 2<&1
+git pull > /dev/null 2<&1
+make > /dev/null 2<&1
+cd /opt/DMRGateway > /dev/null 2<&1
+git pull > /dev/null 2<&1
+make > /dev/null 2<&1
+cp -R /opt/DMRGateway/DMRGateway ${BIN} > /dev/null 2<&1
+cp -R /opt/DMRGateway/DMRGateway.ini ${BIN}dmrgateway > /dev/null 2<&1
+cp -R /opt/MMDVMCal/MMDVMCal ${BIN} > /dev/null 2<&1
+cp -R /opt/MMDVMHost/MMDVMHost ${BIN} > /dev/null 2<&1
+cp -R /opt/MMDVMHost/MMDVM.ini ${BIN}mmdvmhost > /dev/null 2<&1
+cp -R /opt/MMDVMHost/RemoteCommand ${BIN} > /dev/null 2<&1
+chmod -R 775 /usr/local/bin > /dev/null 2<&1
 
-# Prune backups
-FILES="${DMRIDFILE}
-${QRAIDFILE}
-${XLXHOSTS}
-${TGLISTBM}"
+echo "Downloading Start Service Files..."
+curl --fail -o ${SBIN}dmrgateway.service -s ${RGITURL}dmrgateway.service > /dev/null 2<&1
+curl --fail -o ${SBIN}mmdvmhost.service -s ${RGITURL}mmdvmhost.service > /dev/null 2<&1
 
-for file in ${FILES}
-do
-  BACKUPCOUNT=$(ls ${file}.* | wc -l)
-  BACKUPSTODELETE=$(expr ${BACKUPCOUNT} - ${FILEBACKUP})
-  if [ ${BACKUPCOUNT} -gt ${FILEBACKUP} ]; then
-	for f in $(ls -tr ${file}.* | head -${BACKUPSTODELETE})
-	do
-		rm $f
-	done
-  fi
-done
+chmod -R 775 /usr/local/sbin > /dev/null 2<&1
+
+echo "Downloading Service Files..."
+curl --fail -o ${LIB}dmrgateway.service -s ${RGITURL}dmrgateway.service > /dev/null 2<&1
+curl --fail -o ${LIB}dmrgateway.timer -s ${RGITURL}dmrgateway.timer > /dev/null 2<&1
+curl --fail -o ${LIB}mmdvmhost.service -s ${RGITURL}mmdvmhost.service > /dev/null 2<&1
+curl --fail -o ${LIB}mmdvmhost.timer -s ${RGITURL}mmdvmhost.timer > /dev/null 2<&1
+
+echo "Enable Service and Reload"
+systemctl enable dmrgateway.service > /dev/null 2<&1
+systemctl enable dmrgateway.timer > /dev/null 2<&1
+systemctl enable mmdvmhost.service > /dev/null 2<&1
+systemctl enable mmdvmhost.timer > /dev/null 2<&1
+systemctl daemon-reload > /dev/null 2<&1
+
+
+
+
+
 
 echo "Downloading DMRIds.dat Files..."
-curl -sSL http://www.pistar.uk/downloads/DMRIds.dat.gz --user-agent "Pi-Star_${pistarCurVersion}" | gunzip -c > ${DMRIDFILE}
+curl -sSL ${PIURL}DMRIds.dat.gz --user-agent "Pi-Star_${distrCurVersion}" | gunzip -c > ${DMRIDFILE} > /dev/null 2<&1
 
 # Add QRA DMRID database
-echo "Downloading DMRIdsQRA.dat Files..."
-curl --fail -o /tmp/DMRIdsQRA.dat -s "https://raw.githubusercontent.com/krot4u/Public_scripts/master/DMRIds.dat"
-cat /tmp/DMRIdsQRA.dat >> ${DMRIDFILE}
+#echo "Downloading DMRIdsQRA.dat Files..."
+#curl --fail -o /tmp/DMRIdsQRA.dat -s "${KROTURL}master/DMRIds.dat"
+#cat /tmp/DMRIdsQRA.dat >> ${DMRIDFILE}
 
 
 echo "Downloading XLXHosts.txt Files..."
-curl --fail -o ${XLXHOSTS} -s http://www.pistar.uk/downloads/XLXHosts.txt --user-agent "Pi-Star_${pistarCurVersion}"
+curl --fail -o ${XLXHOSTS} -s ${PIURL}XLXHosts.txt --user-agent "Pi-Star_${distrCurVersion}" > /dev/null 2<&1
 
 
 if [ ! -f /root/XLXHosts.txt ]; then
-touch /root/XLXHosts.txt
+touch /root/XLXHosts.txt > /dev/null 2<&1
 fi
 
 # Add custom XLX Hosts
 if [ -f "/root/XLXHosts.txt" ]; then
-cat /root/XLXHosts.txt >> ${XLXHOSTS}
+cat /root/XLXHosts.txt >> ${XLXHOSTS} > /dev/null 2<&1
 fi
 
 echo "Downloading TGList_BM.txt Files..."
-curl --fail -o ${TGLISTBM} -s http://www.pistar.uk/downloads/TGList_BM.txt --user-agent "Pi-Star_${pistarCurVersion}"
+curl --fail -o ${TGLISTBM} -s ${PIURL}TGList_BM.txt --user-agent "Pi-Star_${distrCurVersion}" > /dev/null 2<&1
 
 
 
 	# Download the correct DMR Audio Files
-	if [[ ! -d /usr/local/etc/DMR_Audio ]]; then
+	if [[ ! -d ${SETC}DMR_Audio ]]; then
 		echo "Downloading DMR Voice Files..."
-		mkdir /usr/local/etc/DMR_Audio
-		curl --fail -o /usr/local/etc/DMR_Audio/en_US.ambe -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/en_US.ambe
-		curl --fail -o /usr/local/etc/DMR_Audio/en_US.indx -s https://raw.githubusercontent.com/g4klx/DMRGateway/master/Audio/en_US.indx
+		mkdir ${SETC}DMR_Audio > /dev/null 2<&1
+		curl --fail -o ${SETC}DMR_Audio/en_US.ambe -s ${RGITURL}DMRGateway/master/Audio/en_US.ambe > /dev/null 2<&1
+		curl --fail -o ${SETC}DMR_Audio/en_US.indx -s ${RGITURL}DMRGateway/master/Audio/en_US.indx > /dev/null 2<&1
 	fi
 
-	# Download the correct P25 Audio Files
-	if [[ ! -d /usr/local/etc/P25_Audio ]]; then
-		echo "Downloading P25 Voice Files..."
-		mkdir /usr/local/etc/P25_Audio
-		curl --fail -o /usr/local/etc/P25_Audio/en_US.imbe -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/en_US.imbe
-		curl --fail -o /usr/local/etc/P25_Audio/en_US.indx -s https://raw.githubusercontent.com/g4klx/P25Clients/master/P25Gateway/Audio/en_US.indx
-		echo "Done"
-	fi
-
-	# Download the correct M17 Audio Files
-	if [[ ! -d /usr/local/etc/M17_Audio ]]; then
-		echo "Downloading M17 Voice Files..."
-		mkdir /usr/local/etc/M17_Audio
-		curl --fail -o /usr/local/etc/M17_Audio/en_US.indx -s https://raw.githubusercontent.com/g4klx/M17Gateway/main/Audio/en_US.indx
-		curl --fail -o /usr/local/etc/M17_Audio/en_US.m17 -s hhttps://raw.githubusercontent.com/g4klx/M17Gateway/main/Audio/en_US.m17
-		echo "Done"
-	fi
-
-
-
-# Fix DMRGateway issues with brackets
-#if [ -f "/etc/dmrgateway" ]; then
-#	sed -i '/Name=.*(/d' /etc/dmrgateway
-#	sed -i '/Name=.*)/d' /etc/dmrgateway
-#fi
 
 exit 0
