@@ -2,7 +2,7 @@
 
 # Check that the network is UP and die if its not
 if [ "$(expr length `hostname -I | cut -d' ' -f1`x)" == "1" ]; then
-	exit 0
+    exit 0
 fi
 
 # Get the Distr Version
@@ -28,8 +28,8 @@ MURL=https://raw.githubusercontent.com/r2zfn/armbian/main/
 
 # Check we are root
 if [ "$(id -u)" != "0" ];then
-	echo "This script must be run as root" 1>&2
-	exit 1
+    echo "This script must be run as root" 1>&2
+    exit 1
 fi
 
 apt update && apt upgrade
@@ -127,13 +127,13 @@ curl --fail -o ${TGLISTBM} -s ${PIURL}TGList_BM.txt --user-agent "Pi-Star_${dist
 
 
 
-	# Download the correct DMR Audio Files
-	if [[ ! -d ${SETC}DMR_Audio ]]; then
-		echo "Downloading DMR Voice Files..."
-		mkdir ${SETC}DMR_Audio > /dev/null 2<&1
-		curl --fail -o ${SETC}DMR_Audio/en_US.ambe -s ${RGITURL}DMRGateway/master/Audio/en_US.ambe > /dev/null 2<&1
-		curl --fail -o ${SETC}DMR_Audio/en_US.indx -s ${RGITURL}DMRGateway/master/Audio/en_US.indx > /dev/null 2<&1
-	fi
+    # Download the correct DMR Audio Files
+    if [[ ! -d ${SETC}DMR_Audio ]]; then
+	echo "Downloading DMR Voice Files..."
+	mkdir ${SETC}DMR_Audio > /dev/null 2<&1
+	curl --fail -o ${SETC}DMR_Audio/en_US.ambe -s ${RGITURL}DMRGateway/master/Audio/en_US.ambe > /dev/null 2<&1
+	curl --fail -o ${SETC}DMR_Audio/en_US.indx -s ${RGITURL}DMRGateway/master/Audio/en_US.indx > /dev/null 2<&1
+    fi
 
 
 exit 0
