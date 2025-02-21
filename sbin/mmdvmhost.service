@@ -17,6 +17,7 @@ USER=root
 GROUP=mmdvm
 LOGDIR=/var/log/mmdvm
 
+
 # Verify the logging directory exists, if not create it and setup the ownership / permissions
 if [ ! -d $LOGDIR ]; then
   mkdir -p $LOGDIR
@@ -28,18 +29,15 @@ case "$1" in
 	start)
 		if [ `${PGREP} ${DAEMON}` ]; then
 			echo -e "$DAEMON is already running as PID "`$PGREP $DAEMON`
-			exit 0;
+			exit 1;
 		else
 			# Wait for an IP address
-			while ! interface_has_ip; do
-			    sleep 5
-			done
-                        chown -R ${GROUP}:${GROUP} $LOGDIR
-                        chmod 775 $LOGDIR
-			sleep 5
-			nice -n -10 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
+#			until [ $ipVar != " " ]; do
+#				sleep 10
+#				ipVar=`hostname -I`
+#			done
+			nice -n -5 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
 			echo -e "$DAEMON started as PID "`$PGREP $DAEMON`
-			(sleep 3s; systemctl start ircddbgateway)&
 			exit 0;
 		fi
 		;;
@@ -47,36 +45,26 @@ case "$1" in
 	stop)
 		if [ `${PGREP} ${DAEMON}` ]; then
 			echo -e "Killing $DAEMON PID "`$PGREP $DAEMON`
-			$KILL `${PGREP} ${DAEMON}`
-			systemctl stop ircddbgateway
-
+			$KILL -9 `${PGREP} ${DAEMON}`
 			exit 0;
 		else
 			echo -e "$DAEMON is not running"
-			exit 0;
+			exit 1;
 		fi
 		;;
 
 	restart)
 		if [ `$PGREP $DAEMON` ]; then
 			echo -e "Killing $DAEMON PID "`$PGREP $DAEMON`
-			$KILL `${PGREP} ${DAEMON}`
+			$KILL -9 `${PGREP} ${DAEMON}`
 			$SLEEP 3
-                        chown -R ${GROUP}:${GROUP} $LOGDIR
-                        chmod 775 $LOGDIR
-			sleep 5
-			nice -n -10 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
+			nice -n -5 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
 			echo -e "$DAEMON re-started as PID "`${PGREP} ${DAEMON}`
-			(sleep 3s; systemctl restart ircddbgateway)&
 			exit 0;
 		else
 			echo -e "$DAEMON is not running"
-                        chown -R ${GROUP}:${GROUP} $LOGDIR
-                        chmod 775 $LOGDIR
-			sleep 5
-			nice -n -10 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
-			echo -e "$DAEMON re-started as PID "`${PGREP} ${DAEMON}`
-			(sleep 3s; systemctl restart ircddbgateway)&
+			nice -n -5 ${DAEMON_PATH}${DAEMON} ${DAEMON_OPTS}
+			echo -e "$DAEMON started as PID "`${PGREP} ${DAEMON}`
 			exit 0;
 		fi
 		;;
@@ -91,5 +79,5 @@ case "$1" in
 
 	*)
 		echo $"Usage: $0 {start|stop|restart|status}"
-		exit 0
+		exit 1
 esac
