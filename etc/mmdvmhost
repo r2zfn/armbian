@@ -39,22 +39,8 @@ File=/usr/local/etc/DMRIds.dat
 Time=24
 
 [Modem]
-# Valid values are "null", "uart", "udp", and (on Linux) "i2c"
-Protocol=uart
-# The port and speed used for a UART connection
-# UARTPort=\\.\COM4
-# UARTPort=/dev/ttyACM0
 UARTPort=/dev/ttyUSB0
 UARTSpeed=115200
-# The port and address for an I2C connection
-#I2CPort=/dev/i2c
-#I2CAddress=0x22
-# IP parameters for UDP connection
-#ModemAddress=192.168.2.100
-#ModemPort=3334
-#LocalAddress=192.168.2.1
-#LocalPort=3335
-
 TXInvert=0
 RXInvert=0
 PTTInvert=0
@@ -67,9 +53,9 @@ TXLevel=50
 RXDCOffset=0
 TXDCOffset=0
 RFLevel=100
-# CWIdTXLevel=50
+CWIdTXLevel=50
 DMRTXLevel=50
-# FMTXLevel=50
+FMTXLevel=50
 RSSIMappingFile=/usr/local/etc/RSSI.dat
 UseCOSAsLockout=0
 Trace=0
@@ -99,7 +85,7 @@ CallHang=3
 TXHang=4
 # ModeHang=10
 # OVCM Values, 0=off, 1=rx_on, 2=tx_on, 3=both_on, 4=force off
-OVCM=3
+OVCM=4
 
 [FM]
 Enable=0
@@ -161,25 +147,6 @@ Jitter=360
 Slot1=1
 Slot2=1
 # Options=
-# ModeHang=3
-Debug=0
-
-[FM Network]
-Enable=0
-# Protocol may be USRP or RAW
-Protocol=USRP
-# SampleRate is only used in RAW mode
-SampleRate=48000
-# The squelch file is optional and only used in RAW mode
-SquelchFile=/tmp/sql
-LocalAddress=127.0.0.1
-LocalPort=3810
-GatewayAddress=127.0.0.1
-GatewayPort=4810
-PreEmphasis=1
-DeEmphasis=1
-TXAudioGain=1.0
-RXAudioGain=1.0
 # ModeHang=3
 Debug=0
 

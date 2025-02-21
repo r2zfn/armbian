@@ -1,6 +1,6 @@
 [Unit]
 Description=DMRGateway Radio Servce
-After=syslog.target network.target
+After=syslog.target network.target dmrgateway.timer
 
 [Service]
 Type=forking

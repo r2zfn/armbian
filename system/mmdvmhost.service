@@ -1,11 +1,11 @@
 [Unit]
 Description=MMDVMHost Radio Service
-After=syslog.target network.target
+After=syslog.target network.target mmdvmhost.timer
 
 [Service]
 Type=forking
 ExecStart=/usr/local/sbin/mmdvmhost.service start
-ExecStop=/usr/local/sbin/mmdvmhost.service stop
+#ExecStop=/usr/local/sbin/mmdvmhost.service stop
 ExecReload=/usr/local/sbin/mmdvmhost.service restart
 
 [Install]

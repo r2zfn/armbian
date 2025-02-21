@@ -17,39 +17,40 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Get the modem port from /etc/mmdvmhost
-mmdvmModem=$(grep -m 1 'Port=' /usr/local/etc/mmdvmhost | awk -F "=" '/Port/ {print $2}')
-
+port=$(grep -m 1 'UARTPort' /usr/local/etc/mmdvmhost | awk -F "=" '/Port/ {print $2}')
+# Get the modem baudrate from /etc/mmdvmhost
+baudrate=$(grep -m 1 'UARTSpeed' /usr/local/etc/mmdvmhost | awk -F "=" '/Speed/ {print $2}')
 # Output some feedback to the terminal
 echo "Stopping Services..."
 
 # Stop the services
-systemctl stop watchdog.timer
-systemctl stop watchdog.service
-systemctl stop mmdvmhost.timer
-systemctl stop mmdvmhost.service
+systemctl stop watchdog.timer >/dev/null 2>&1 &
+systemctl stop watchdog.service >/dev/null 2>&1 &
+systemctl stop mmdvmhost.timer >/dev/null 2>&1 &
+systemctl stop mmdvmhost.service >/dev/null 2>&1 &
 sleep 3
 
 # Force Kill any remaining MMDVMHost processes
 echo "Killing any remaining MMDVMHost processes..."
-killall MMDVMHost
+killall MMDVMHost >/dev/null 2>&1 &
 
 # Output some feedback to the terminal
 echo "Starting Calibration..."
 
 # Run MMDVMCal twice, killing the first one after 3 secs
-/usr/local/bin/MMDVMCal ${mmdvmModem} >/dev/null 2>&1 &
+/usr/local/bin/MMDVMCal ${baudrate} ${port} >/dev/null 2>&1 &
 sleep 3
 killall MMDVMCal >/dev/null 2>&1
-/usr/local/bin/MMDVMCal ${mmdvmModem}
+/usr/local/bin/MMDVMCal ${baudrate} ${port} >/dev/null 2>&1 &
 
 # Output some feedback to the terminal
 echo "Starting Services..."
 
 # Start the services
-systemctl start watchdog.timer
-systemctl start watchdog
-systemctl start mmdvmhost.timer
-systemctl start mmdvmhost
+systemctl start watchdog.timer >/dev/null 2>&1 &
+systemctl start watchdog >/dev/null 2>&1 &
+systemctl start mmdvmhost.timer >/dev/null 2>&1 &
+systemctl start mmdvmhost >/dev/null 2>&1 &
 
 # Complete
 echo "Finnished..."

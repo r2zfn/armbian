@@ -48,7 +48,9 @@ apt-get install lighttpd > /dev/null 2<&1
 groupadd www-data > /dev/null 2<&1
 usermod -G www-data -a mmdvm > /dev/null 2<&1
 usermod -G www-data -a root > /dev/null 2<&1
-apt-get install php7.4-common php7.4-cgi php > /dev/null 2<&1
+addgroup root dialout > /dev/null 2<&1
+addgroup mmdvm dialout > /dev/null 2<&1
+apt-get install -y php7.4-common php7.4-cgi php > /dev/null 2<&1
 echo "Git clone MMDVMHost-Dashboard"
 git clone https://github.com/dg9vh/MMDVMHost-Dashboard.git > /dev/null 2<&1
 cp -R -f /opt/MMDVMHost-Dashboard/* /var/www/html/ > /dev/null 2<&1
